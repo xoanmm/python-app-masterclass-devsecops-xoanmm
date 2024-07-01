@@ -1,0 +1,89 @@
+name: release-build
+
+on:
+  workflow_run:
+    workflows:
+      - "CI"
+    branches: [ main ]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
+  issues: write
+
+jobs:
+  semantic-release:
+    if: "${{ github.event.workflow_run.conclusion == 'success' && !contains(github.event.commits[0].message, 'chore(release):') }}"
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create empty semantic_release_version.txt file
+        run: touch semantic_release_version.txt
+
+      - name: Release
+        id: semantic_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release --debug
+
+      - name: Get the version
+        id: get_version
+        run: |
+          echo VERSION=$(cat semantic_release_version.txt) >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        if: ${{ env.VERSION != '' }}
+        uses: docker/setup-buildx-action@v3.3.0
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Docker Login in GHCR
+        uses: docker/login-action@v3.2.0
+        if: ${{ env.VERSION != '' }}
+        id: configure-login-ghcr
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5.5.1
+        if: ${{ env.VERSION != '' }}
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ env.VERSION }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6.2.0
+        if: ${{ env.VERSION != '' }}
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+    outputs:
+      version: ${{ env.VERSION }}
