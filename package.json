@@ -28,7 +28,15 @@
                     "prepareCmd": "echo ${nextRelease.version} > semantic_release_version.txt"
                 }
             ],
-            "@semantic-release/git"
+            [
+                "@semantic-release/git",
+                {
+                    "message": "chore(release): ${nextRelease.version} \n\n${nextRelease.notes}",
+                    "assets": [
+                        "docs/CHANGELOG.md"
+                    ]
+                }
+            ]
         ]
     },
     "version": "0.0.1",

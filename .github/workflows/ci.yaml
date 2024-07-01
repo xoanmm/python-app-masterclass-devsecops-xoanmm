@@ -8,6 +8,7 @@ on:
 name: CI
 jobs:
   lint-python-code:
+    if: "${{ !contains(github.event.commits[0].message, 'chore(release):') }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -37,6 +38,7 @@ jobs:
           extra_args: "-a -v"
 
   unit-tests:
+    if: "${{ !contains(github.event.commits[0].message, 'chore(release):') }}"
     needs:
       - lint-python-code
     runs-on: ubuntu-latest
@@ -72,6 +74,7 @@ jobs:
           path: coverage.xml
 
   security-checks:
+    if: "${{ !contains(github.event.commits[0].message, 'chore(release):') }}"
     needs:
       - unit-tests
     runs-on: ubuntu-latest
