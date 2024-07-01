@@ -32,7 +32,7 @@ jobs:
         run: pip3 install -r requirements.txt
 
       - name: Run pre-commit
-        uses: pre-commit/action@v2.0.3
+        uses: pre-commit/action@v3.0.1
         with:
           extra_args: "-a -v"
 
@@ -88,8 +88,6 @@ jobs:
         uses: sonarsource/sonarcloud-github-action@v2.3.0
         with:
           args: >
-            -Dsonar.organization=${{ github.repository_owner }}
-            -Dsonar.projectKey=${{ github.event.repository.name }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.test.exclusions=tests/**
             -Dsonar.tests=tests/
