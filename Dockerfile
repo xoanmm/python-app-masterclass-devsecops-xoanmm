@@ -3,7 +3,7 @@ FROM python:3.8.19-slim-bullseye AS builder
 COPY requirements.txt .
 
 RUN apt-get update &&\
-  apt-get install -y curl &&\
+  apt-get --no-install-recommends install -y curl &&\
   apt-get clean
 
 ## ----------------------------------------------------------------
