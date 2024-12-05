@@ -15,7 +15,7 @@ MarkupSafe==2.1.5
 httptools==0.6.1
 itsdangerous==2.2.0
 orjson==3.10.5
-python-multipart==0.0.9
+python-multipart==0.0.18
 six==1.16.0
 ujson==5.10.0
 uvicorn==0.30.1
