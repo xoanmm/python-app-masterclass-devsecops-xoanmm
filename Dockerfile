@@ -1,4 +1,4 @@
-FROM python:3.8.19-slim-bullseye AS builder
+FROM python:3.13.2-slim-bullseye AS builder
 
 COPY requirements.txt .
 
@@ -19,7 +19,7 @@ RUN pip install --upgrade pip
 RUN python3 -m pip install --upgrade pip \
  && python3 -m pip install -r requirements.txt
 
-FROM python:3.8.19-slim-bullseye
+FROM python:3.13.2-slim-bullseye
 
 ## ----------------------------------------------------------------
 ## add user so we can run things as non-root
